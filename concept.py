@@ -1,5 +1,5 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import customtkinter as ctk
+from tkinter import messagebox
 import csv
 import os
 from datetime import datetime, timedelta
@@ -8,25 +8,31 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import seaborn as sns
 
+# Set appearance mode and color theme
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
 class HabitTrackerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Habit Tracker")
-        self.root.geometry("1400x800")
-        # self.root.set_appearance_mode("Dark")
+        self.root.geometry("1600x800")
         
-        # Dark theme colors
-        self.bg_dark = "#1e1e1e"
-        self.bg_medium = "#2d2d2d"
-        self.bg_light = "#3d3d3d"
-        self.accent = "#4a9eff"
-        self.success = "#4ade80"
+        # Modern dark theme colors (inspired by the mobile app)
+        self.bg_dark = "#1a1a1a"
+        self.bg_medium = "#252525"
+        self.bg_light = "#2a2a2a"
+        self.accent = "#FFD700"
+        self.accent_hover = "#e6c200"
+        self.success = "#FFD700"
         self.warning = "#fbbf24"
-        self.danger = "#f87171"
-        self.text = "#e0e0e0"
-        self.text_dim = "#a0a0a0"
+        self.danger = "#780404"
+        self.text = "#ffffff"
+        self.text_dim = "#999999"
+        self.checkbox_empty = "#3a3a3a"
+        self.checkbox_filled = "#FFD700"
         
-        self.root.configure(bg=self.bg_dark)
+        self.root.configure(fg_color=self.bg_dark)
         
         # Set seaborn style
         sns.set_style("darkgrid")
@@ -63,73 +69,67 @@ class HabitTrackerApp:
     
     def create_widgets(self):
         # Main container
-        main_frame = tk.Frame(self.root, bg=self.bg_dark)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame = ctk.CTkFrame(self.root, fg_color=self.bg_dark)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
         
         # Left panel - Habit list and calendar
-        left_frame = tk.Frame(main_frame, bg=self.bg_dark)
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
+        left_frame = ctk.CTkFrame(main_frame, fg_color=self.bg_dark,width=900)
+        left_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
         
         # Title
-        title = tk.Label(left_frame, text="HABIT TRACKER", font=("Arial", 24, "bold"),
-                        bg=self.bg_dark, fg=self.text)
+        title = ctk.CTkLabel(left_frame, text="HABIT TRACKER", 
+                            font=ctk.CTkFont(size=24, weight="bold"),
+                            text_color=self.text)
         title.pack(pady=(0, 20))
         
         # Add habit section
-        add_frame = tk.Frame(left_frame, bg=self.bg_medium)
-        add_frame.pack(fill=tk.X, pady=(0, 20), padx=5, ipady=10)
+        add_frame = ctk.CTkFrame(left_frame, fg_color=self.bg_medium, corner_radius=10)
+        add_frame.pack(fill="x", pady=(0, 20), padx=5)
         
-        tk.Label(add_frame, text="Habit:", bg=self.bg_medium, fg=self.text,
-                font=("Arial", 10)).grid(row=0, column=0, padx=10, pady=5)
-        self.habit_entry = tk.Entry(add_frame, bg=self.bg_light, fg=self.text,
-                                    insertbackground=self.text, relief=tk.FLAT, font=("Arial", 10))
-        self.habit_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        add_content = ctk.CTkFrame(add_frame, fg_color=self.bg_medium)
+        add_content.pack(fill="x", padx=10, pady=10)
         
-        tk.Label(add_frame, text="Goal:", bg=self.bg_medium, fg=self.text,
-                font=("Arial", 10)).grid(row=0, column=2, padx=10, pady=5)
-        self.goal_entry = tk.Entry(add_frame, bg=self.bg_light, fg=self.text,
-                                   insertbackground=self.text, relief=tk.FLAT, font=("Arial", 10), width=8)
-        self.goal_entry.grid(row=0, column=3, padx=5, pady=5)
+        ctk.CTkLabel(add_content, text="Habit:", fg_color=self.bg_medium, 
+                    text_color=self.text, font=ctk.CTkFont(size=10)).grid(row=0, column=0, padx=10, pady=5)
+        self.habit_entry = ctk.CTkEntry(add_content, fg_color=self.bg_light, 
+                                        text_color=self.text, border_width=0,
+                                        font=ctk.CTkFont(size=10),height=40)
+        self.habit_entry.grid(row=0, column=1, padx=5, pady=5,sticky="ew")
         
-        add_btn = tk.Button(add_frame, text="Add Habit", command=self.add_habit,
-                           bg=self.accent, fg="white", relief=tk.FLAT, font=("Arial", 10, "bold"),
-                           cursor="hand2", padx=20)
-        add_btn.grid(row=0, column=4, padx=10, pady=5)
+        ctk.CTkLabel(add_content, text="Goal:", fg_color=self.bg_medium, 
+                    text_color=self.text, font=ctk.CTkFont(size=10)).grid(row=1, column=0, padx=10, pady=5)
+        self.goal_entry = ctk.CTkEntry(add_content, fg_color=self.bg_light, 
+                                       text_color=self.text, border_width=0,
+                                       font=ctk.CTkFont(size=10), width=80,height=40)
+        self.goal_entry.grid(row=1, column=1, padx=5, pady=5,sticky="w")
         
-        add_frame.columnconfigure(1, weight=1)
+        add_btn = ctk.CTkButton(add_content, text="Add Habit", command=self.add_habit,
+                               fg_color=self.accent, text_color="black",
+                               hover_color=self.accent_hover,
+                               font=ctk.CTkFont(size=10, weight="bold"),
+                               corner_radius=8,height=40)
+        add_btn.grid(row=1, column=1, padx=100, pady=5,sticky="w" )
         
-        # Habits canvas with scrollbar
-        canvas_frame = tk.Frame(left_frame, bg=self.bg_dark)
-        canvas_frame.pack(fill=tk.BOTH, expand=True)
+        add_content.columnconfigure(1, weight=1)
         
-        self.canvas = tk.Canvas(canvas_frame, bg=self.bg_dark, highlightthickness=0)
-        scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = tk.Frame(self.canvas, bg=self.bg_dark)
-        
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
-        
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=scrollbar.set)
-        
-        self.canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
+        # Habits scrollable frame
+        self.scrollable_frame = ctk.CTkScrollableFrame(left_frame,width=700, fg_color=self.bg_dark)
+        self.scrollable_frame.pack(fill="both", expand=True)
         
         # Right panel - Statistics
-        right_frame = tk.Frame(main_frame, bg=self.bg_dark, width=400)
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, padx=(10, 0))
+        right_frame = ctk.CTkFrame(main_frame, fg_color=self.bg_dark, width=400)
+        right_frame.pack(side="right", fill="both", padx=(10, 0))
         right_frame.pack_propagate(False)
         
-        stats_title = tk.Label(right_frame, text="STATISTICS", font=("Arial", 18, "bold"),
-                              bg=self.bg_dark, fg=self.text)
+        stats_title = ctk.CTkLabel(right_frame, text="STATISTICS", 
+                                   font=ctk.CTkFont(size=18, weight="bold"),
+                                   text_color=self.text)
         stats_title.pack(pady=(0, 15))
         
         # Create matplotlib figure
         self.fig = Figure(figsize=(4, 8), facecolor=self.bg_dark)
         self.canvas_plot = FigureCanvasTkAgg(self.fig, master=right_frame)
-        self.canvas_plot.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        self.canvas_plot.get_tk_widget().pack(fill="both", expand=True)
         
     def add_habit(self):
         habit_name = self.habit_entry.get().strip()
@@ -150,15 +150,14 @@ class HabitTrackerApp:
             return
         
         self.habits.append({'name': habit_name, 'goal': goal})
-        self.habit_entry.delete(0, tk.END)
-        self.goal_entry.delete(0, tk.END)
+        self.habit_entry.delete(0, 'end')
+        self.goal_entry.delete(0, 'end')
         self.refresh_data()
         
-    def mark_habit(self, habit_name, date):
+    def mark_habit(self, habit_name, date, checkbox):
         date_str = date.strftime("%Y-%m-%d")
         
         # Check if already marked
-        rows = []
         found = False
         with open(self.csv_file, 'r') as f:
             reader = csv.DictReader(f)
@@ -195,7 +194,6 @@ class HabitTrackerApp:
             last_day = datetime(self.current_year, self.current_month + 1, 1) - timedelta(days=1)
         
         days_in_month = last_day.day
-        first_weekday = first_day.weekday()  # 0=Monday, 6=Sunday
         
         # Load completion data
         completion_data = {}
@@ -207,16 +205,19 @@ class HabitTrackerApp:
                     completion_data[key] = True
         
         # Create header with day numbers and weekday names
-        header_frame = tk.Frame(self.scrollable_frame, bg=self.bg_medium, relief=tk.RIDGE, bd=1)
-        header_frame.pack(fill=tk.X, pady=(0, 2))
+        header_frame = ctk.CTkFrame(self.scrollable_frame, fg_color=self.bg_medium, 
+                                   corner_radius=8, border_width=1, border_color=self.bg_light)
+        header_frame.pack(fill="x", pady=(0, 2))
         
         # Habit column header
-        tk.Label(header_frame, text="HABIT", font=("Arial", 9, "bold"), bg=self.bg_medium,
-                fg=self.text, width=18, anchor="w", padx=5).grid(row=0, column=0, rowspan=2, sticky="nsew")
+        ctk.CTkLabel(header_frame, text="HABIT", font=ctk.CTkFont(size=9, weight="bold"), 
+                    fg_color=self.bg_medium, text_color=self.text, 
+                    width=150, anchor="w").grid(row=0, column=0, rowspan=2, sticky="nsew", padx=5)
         
         # Goal column header
-        tk.Label(header_frame, text="GOAL", font=("Arial", 9, "bold"), bg=self.bg_medium,
-                fg=self.text, width=5).grid(row=0, column=1, rowspan=2, sticky="nsew")
+        ctk.CTkLabel(header_frame, text="GOAL", font=ctk.CTkFont(size=9, weight="bold"), 
+                    fg_color=self.bg_medium, text_color=self.text, 
+                    width=50).grid(row=0, column=1, rowspan=2, sticky="nsew")
         
         # Day headers - numbers and weekdays
         weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -225,38 +226,38 @@ class HabitTrackerApp:
             weekday = weekdays[date.weekday()]
             
             # Day number (top row)
-            day_label = tk.Label(header_frame, text=str(day), font=("Arial", 8, "bold"), 
-                               bg=self.bg_medium, fg=self.text, width=3)
-            day_label.grid(row=0, column=2 + day, padx=1, sticky="nsew")
+            ctk.CTkLabel(header_frame, text=str(day), font=ctk.CTkFont(size=8, weight="bold"), 
+                        fg_color=self.bg_medium, text_color=self.text, 
+                        width=25).grid(row=0, column=2 + day, padx=1, sticky="nsew")
             
             # Weekday initial (bottom row)
-            wd_label = tk.Label(header_frame, text=weekday, font=("Arial", 7), 
-                               bg=self.bg_medium, fg=self.text_dim, width=3)
-            wd_label.grid(row=1, column=2 + day, padx=1, sticky="nsew")
+            ctk.CTkLabel(header_frame, text=weekday, font=ctk.CTkFont(size=7), 
+                        fg_color=self.bg_medium, text_color=self.text_dim, 
+                        width=25).grid(row=1, column=2 + day, padx=1, sticky="nsew")
         
         # Progress column header
-        tk.Label(header_frame, text="PROGRESS", font=("Arial", 9, "bold"), bg=self.bg_medium,
-                fg=self.text, width=10).grid(row=0, column=3 + days_in_month, rowspan=2, sticky="nsew")
+        ctk.CTkLabel(header_frame, text="PROGRESS", font=ctk.CTkFont(size=9, weight="bold"), 
+                    fg_color=self.bg_medium, text_color=self.text, 
+                    width=80).grid(row=0, column=3 + days_in_month, rowspan=2, sticky="nsew")
         
         # Create rows for each habit
         for idx, habit in enumerate(self.habits):
             row_bg = self.bg_light if idx % 2 == 0 else self.bg_medium
-            row_frame = tk.Frame(self.scrollable_frame, bg=row_bg, relief=tk.RIDGE, bd=1)
-            row_frame.pack(fill=tk.X, pady=1)
+            row_frame = ctk.CTkFrame(self.scrollable_frame, fg_color=row_bg, 
+                                    corner_radius=8, border_width=1, border_color=self.bg_light)
+            row_frame.pack(fill="x", pady=1)
             
             # Habit name with wrapping
             wrapped_name = self.wrap_text(habit['name'], 18)
-            habit_label = tk.Label(row_frame, text=wrapped_name, font=("Arial", 9), bg=row_bg,
-                    fg=self.text, width=18, anchor="w", padx=5)
-            habit_label.grid(row=0, column=0, sticky="nsew", pady=4)
-            
-            # Add tooltip for full name if wrapped
-            if len(habit['name']) > 18:
-                self.create_tooltip(habit_label, habit['name'])
+            habit_label = ctk.CTkLabel(row_frame, text=wrapped_name, font=ctk.CTkFont(size=9), 
+                                       fg_color=row_bg, text_color=self.text, 
+                                       width=150, anchor="w")
+            habit_label.grid(row=0, column=0, sticky="nsew", pady=4, padx=5)
             
             # Goal
-            tk.Label(row_frame, text=str(habit['goal']), font=("Arial", 9), bg=row_bg,
-                    fg=self.text, width=5).grid(row=0, column=1, sticky="nsew", pady=4)
+            ctk.CTkLabel(row_frame, text=str(habit['goal']), font=ctk.CTkFont(size=9), 
+                        fg_color=row_bg, text_color=self.text, 
+                        width=50).grid(row=0, column=1, sticky="nsew", pady=4)
             
             # Day checkboxes
             completed = 0
@@ -268,54 +269,34 @@ class HabitTrackerApp:
                 if is_completed:
                     completed += 1
                 
-                # Create checkbox frame
-                box_frame = tk.Frame(row_frame, bg=row_bg)
-                box_frame.grid(row=0, column=2 + day, padx=2, pady=4)
-                
-                # Checkbox button
+                # Create checkbox button
                 if is_completed:
-                    # Filled box with X mark
-                    btn = tk.Label(box_frame, text="X", font=("Arial", 8, "bold"),
-                                 bg=self.success, fg="white", width=2, height=1,
-                                 relief=tk.FLAT, cursor="hand2")
+                    # Filled box with checkmark
+                    btn = ctk.CTkButton(row_frame, text="✓", font=ctk.CTkFont(size=10, weight="bold"),
+                                       fg_color=self.checkbox_filled, text_color="black",
+                                       hover_color=self.accent_hover,
+                                       width=25, height=25, corner_radius=5,
+                                       command=lambda h=habit['name'], d=date, cb=None: self.mark_habit(h, d, cb))
                 else:
                     # Empty box
-                    btn = tk.Label(box_frame, text="", font=("Arial", 8),
-                                 bg=self.bg_dark, fg=self.text, width=2, height=1,
-                                 relief=tk.SOLID, bd=1, cursor="hand2")
+                    btn = ctk.CTkButton(row_frame, text="", font=ctk.CTkFont(size=8),
+                                       fg_color=self.checkbox_empty, text_color=self.text,
+                                       hover_color="#4a4a4a",
+                                       width=25, height=25, corner_radius=5,
+                                       command=lambda h=habit['name'], d=date, cb=None: self.mark_habit(h, d, cb))
                 
-                btn.pack()
-                btn.bind("<Button-1>", lambda e, h=habit['name'], d=date: self.mark_habit(h, d))
+                btn.grid(row=0, column=2 + day, padx=2, pady=4)
             
             # Progress
             progress = int((completed / habit['goal']) * 100) if habit['goal'] > 0 else 0
             progress_color = self.danger if progress < 30 else self.warning if progress < 70 else self.success
             
-            progress_label = tk.Label(row_frame, text=f"{progress}%", font=("Arial", 9, "bold"), 
-                                     bg=row_bg, fg=progress_color, width=10)
+            progress_label = ctk.CTkLabel(row_frame, text=f"{progress}%", 
+                                         font=ctk.CTkFont(size=9, weight="bold"), 
+                                         fg_color=row_bg, text_color=progress_color, width=80)
             progress_label.grid(row=0, column=3 + days_in_month, sticky="nsew", pady=4)
         
         self.update_graphs()
-    
-    def create_tooltip(self, widget, text):
-        """Create a tooltip for wrapped text"""
-        def on_enter(event):
-            tooltip = tk.Toplevel()
-            tooltip.wm_overrideredirect(True)
-            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
-            label = tk.Label(tooltip, text=text, background=self.bg_light, 
-                           foreground=self.text, relief=tk.SOLID, borderwidth=1,
-                           font=("Arial", 9), padx=5, pady=3)
-            label.pack()
-            widget.tooltip = tooltip
-        
-        def on_leave(event):
-            if hasattr(widget, 'tooltip'):
-                widget.tooltip.destroy()
-                del widget.tooltip
-        
-        widget.bind("<Enter>", on_enter)
-        widget.bind("<Leave>", on_leave)
         
     def update_graphs(self):
         self.fig.clear()
@@ -348,7 +329,7 @@ class HabitTrackerApp:
         # Monthly Progress
         ax1 = self.fig.add_subplot(gs[0])
         if self.habits and monthly_progress:
-            habits_list = [self.wrap_text(h['name'], 12) for h in self.habits]
+            habits_list = [h['name'] for h in self.habits]
             progress_pct = []
             for h in self.habits:
                 completed = monthly_progress.get(h['name'], 0)
@@ -356,55 +337,60 @@ class HabitTrackerApp:
                 progress_pct.append(pct)
             
             colors = [self.danger if p < 30 else self.warning if p < 70 else self.success for p in progress_pct]
-            bars = ax1.barh(habits_list, progress_pct, color=colors, alpha=0.8)
+            bars = ax1.barh(habits_list, progress_pct, color=colors,edgecolor="none")
             ax1.set_xlabel('Progress (%)', color=self.text, fontsize=9)
             ax1.set_title('MONTHLY PROGRESS', color=self.text, fontsize=11, fontweight='bold', pad=10)
             ax1.set_xlim(0, 100)
             ax1.tick_params(colors=self.text, labelsize=8)
-            ax1.spines['bottom'].set_color(self.text)
-            ax1.spines['left'].set_color(self.text)
+            ax1.set_facecolor(self.bg_medium)
+            ax1.spines['bottom'].set_color(self.text_dim)
+            ax1.spines['left'].set_color(self.text_dim)
             ax1.spines['top'].set_visible(False)
             ax1.spines['right'].set_visible(False)
-            ax1.grid(axis='x', alpha=0.3)
+            ax1.grid(False)
         
         # Last 3 Days
         ax2 = self.fig.add_subplot(gs[1])
         if self.habits and last_3_days:
-            habits_list = [self.wrap_text(h['name'], 12) for h in self.habits]
+            habits_list = [h['name'] for h in self.habits]
             days_data = [last_3_days.get(h['name'], 0) for h in self.habits]
             
-            bars = ax2.barh(habits_list, days_data, color=self.accent, alpha=0.8)
+            bars = ax2.barh(habits_list, days_data, color=self.accent,edgecolor="none")
             ax2.set_xlabel('Days Completed', color=self.text, fontsize=9)
             ax2.set_title('LAST 3 DAYS', color=self.text, fontsize=11, fontweight='bold', pad=10)
             ax2.tick_params(colors=self.text, labelsize=8)
-            ax2.spines['bottom'].set_color(self.text)
-            ax2.spines['left'].set_color(self.text)
+            ax2.set_facecolor(self.bg_medium)
+            ax2.spines['bottom'].set_color(self.text_dim)
+            ax2.spines['left'].set_color(self.text_dim)
             ax2.spines['top'].set_visible(False)
             ax2.spines['right'].set_visible(False)
-            ax2.grid(axis='x', alpha=0.3)
+            ax2.grid(False)
         
         # Momentum (pie chart)
         ax3 = self.fig.add_subplot(gs[2])
         if momentum:
-            labels = [self.wrap_text(k, 10) for k in momentum.keys()]
+            labels = list(momentum.keys())
             sizes = list(momentum.values())
-            colors_pie = plt.cm.Set3(range(len(labels)))
+            colors_pie = ['#6366F1', '#8B5CF6', '#22D3EE', '#F43F5E', '#FBBF24'][:len(labels)]
             
             wedges, texts, autotexts = ax3.pie(sizes, labels=labels, autopct='%1.0f%%',
-                                                colors=colors_pie, startangle=90)
+                                                colors=colors_pie, startangle=90,wedgeprops={'linewidth': 0, 'edgecolor': 'none'})
             for text in texts:
                 text.set_color(self.text)
                 text.set_fontsize(8)
             for autotext in autotexts:
-                autotext.set_color('white')
-                autotext.set_fontsize(8)
+                autotext.set_color('snow')
+                autotext.set_fontsize(10)
                 autotext.set_fontweight('bold')
             
             ax3.set_title('MOMENTUM', color=self.text, fontsize=11, fontweight='bold', pad=10)
+            ax3.set_facecolor(self.bg_medium)
         
+        self.fig.patch.set_facecolor(self.bg_dark)
         self.canvas_plot.draw()
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    ctk.set_appearance_mode("dark")
+    root = ctk.CTk()
     app = HabitTrackerApp(root)
     root.mainloop()
